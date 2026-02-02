@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  api:
+    image: python:3.11-slim
+    container_name: simulador_api
+    working_dir: /project
+    environment:
+      - PYTHONPATH=/project
+    volumes:
+      - .:/project
+    command: >
+      sh -c "pip install -r requirements.txt &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:16
+    container_name: simulador_db
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    container_name: simulador_redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
+
